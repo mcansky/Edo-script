@@ -9,7 +9,7 @@ Bundler.require(:default)
 require "heroku/command"
 require 'heroku/command/auth'
 require "heroku/command/pgbackups"
-#require "/usr/local/rvm/rubies/ruby-1.9.2-p180/lib/ruby/1.9.1/net/https.rb"
+require "open-uri"
 
 module Kernel
   def capture_stdout
@@ -42,6 +42,7 @@ class Edo < Thor
     config["heroku"]["apps"].each do |heroku_app|
       backup_bucket = "#{heroku_app}-#{config["s3"]["bucket_suffix"]}"
       file_name = "backup-#{Time.now.strftime(config['s3']['timestamp'])}.dump"
+      file_path = File.expand_path(File.dirname(__FILE__)) + "/backups/" + file_name
       say "Backup for #{heroku_app} started @ #{Time.now}", :green
       if not options[:old]
         say "\tTriggering backup at Heroku ...", :green
@@ -54,7 +55,9 @@ class Edo < Thor
         Heroku::Command.run 'pgbackups:url', ['--app', heroku_app]
       end
       say "\tDowloading localy", :green
-      system("curl -o backups/#{file_name} '#{url}'")
+      File.open(file_path, "w") do |file|
+        file.puts open(url)
+      end
       puts "\tUploading to S3..."
       s3 = Aws::S3.new(config["s3"]["token"], config["s3"]["secret"])
       bucket = Aws::S3::Bucket.create(s3, backup_bucket)
