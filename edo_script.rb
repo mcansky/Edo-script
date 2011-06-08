@@ -1,9 +1,11 @@
 #!/bin/env ruby
 
 require "rubygems"
-require "thor"
-require "aws"
 require "bundler/setup"
+
+# get all the gems in
+Bundler.require(:default)
+
 require "heroku/command"
 require 'heroku/command/auth'
 require "heroku/command/pgbackups"
