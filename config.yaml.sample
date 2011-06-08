@@ -1,0 +1,12 @@
+---
+  heroku:
+    user: "account@heroku"
+    password: "password"
+    apps:
+      - app1
+      - app2
+  s3:
+    token: s3_token
+    secret: s3_secret_token
+    bucket_suffix: backup
+    timestamp: '%d%m%Y_%H%M'
