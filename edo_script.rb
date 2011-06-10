@@ -41,7 +41,7 @@ class Edo < Thor
     Dir.mkdir(active_path + "/backups/") unless File.exist?(active_path + "/backups/")
     config["heroku"]["apps"].each do |heroku_app|
       backup_bucket = "#{heroku_app}-#{config["s3"]["bucket_suffix"]}"
-      file_name = "backup-#{Time.now.strftime(config['s3']['timestamp'])}.dump"
+      file_name = "#{heroku_app}-backup-#{Time.now.strftime(config['s3']['timestamp'])}.dump"
       file_path = File.expand_path(File.dirname(__FILE__)) + "/backups/" + file_name
       say "Backup for #{heroku_app} started @ #{Time.now}", :green
       if not options[:old]
@@ -65,7 +65,7 @@ class Edo < Thor
       if key.exists?
         say "Backup for #{heroku_app} @ #{Time.now.strftime('%Y%m%d_%H%M')} already exists !", :yellow
       else
-        key.put(IO.read("backups/" + file_name))
+        key.put(IO.read(active_path + "/backups/" + file_name))
         key.exists? ? say("Backup for #{heroku_app} @ #{Time.now.strftime('%y%m%d_%H%M')} uploaded !", :green) : say("Backup for #{Time.now.strftime('%y%m%d_%H%M')} had trouble !", :red)
       end
       say "Done @ #{Time.now}", :green
