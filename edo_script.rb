@@ -64,11 +64,11 @@ class Edo < Thor
       url.chomp!
       say "\tDowloading localy", :green
 	    puts "\"#{url}\""
-      File.open(file_path, "w") do |file|
-        file.puts open(url)
-      end
+      #File.open(file_path, "w") do |file|
+      #  file.puts open(url)
+      #end
       puts "backup : #{url.chomp} to be saved at #{file_name}"
-      #system("curl -o #{active_path}/backups/#{file_name} \"#{url}\"")
+      system("curl -o #{active_path}/backups/#{file_name} \"#{url}\"")
       puts "\tUploading to S3..."
       s3 = Aws::S3.new(config["s3"]["token"], config["s3"]["secret"])
       bucket = Aws::S3::Bucket.create(s3, backup_bucket)
