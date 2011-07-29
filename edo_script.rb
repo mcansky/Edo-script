@@ -34,12 +34,19 @@ class Edo < Thor
   
   desc "backup", "backup apps datas"
   method_options :old => false
+  method_options :app => :string
   def backup
     # load config
     config = YAML.load_file(File.expand_path(File.dirname(__FILE__)) + "/config.yaml")
     active_path = File.expand_path(File.dirname(__FILE__))
     Dir.mkdir(active_path + "/backups/") unless File.exist?(active_path + "/backups/")
-    config["heroku"]["apps"].each do |heroku_app|
+    apps = Array.new
+    if not options[:app]
+	apps = config["heroku"]["apps"]
+    else
+        apps << options[:app]
+    end
+    apps.each do |heroku_app|
       backup_bucket = "#{heroku_app}-#{config["s3"]["bucket_suffix"]}"
       file_name = "#{heroku_app}-backup-#{Time.now.strftime(config['s3']['timestamp'])}.dump"
       file_path = File.expand_path(File.dirname(__FILE__)) + "/backups/" + file_name
@@ -54,10 +61,14 @@ class Edo < Thor
       url = capture_stdout do
         Heroku::Command.run 'pgbackups:url', ['--app', heroku_app]
       end
+      url.chomp!
       say "\tDowloading localy", :green
+	    puts "\"#{url}\""
       File.open(file_path, "w") do |file|
         file.puts open(url)
       end
+      puts "backup : #{url.chomp} to be saved at #{file_name}"
+      #system("curl -o #{active_path}/backups/#{file_name} \"#{url}\"")
       puts "\tUploading to S3..."
       s3 = Aws::S3.new(config["s3"]["token"], config["s3"]["secret"])
       bucket = Aws::S3::Bucket.create(s3, backup_bucket)
