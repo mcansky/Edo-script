@@ -63,7 +63,6 @@ class Edo < Thor
       end
       url.chomp!
       say "\tDowloading localy", :green
-	    puts "\"#{url}\""
       #File.open(file_path, "w") do |file|
       #  file.puts open(url)
       #end
