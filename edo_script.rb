@@ -62,7 +62,7 @@ class Edo < Thor
         Heroku::Command.run 'pgbackups:url', ['--app', heroku_app]
       end
       url.chomp!
-      say "\tDowloading localy", :greengit
+      say "\tDowloading localy", :green
       File.open(file_path, "w") do |file|
         file << open(url).read
       end
